@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>CodeDeploy.Tool</id>
+        <version></version>
+        <description>Tool to deploy applications using AWS CodeDeploy</description>
+        <authors>mziyabo</authors>
+    </metadata>
+</package>
