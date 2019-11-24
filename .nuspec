@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>CodeDeploy.Tool</id>
+        <id>Tool.AWS.CodeDeploy</id>
         <version></version>
         <description>Tool to deploy applications using AWS CodeDeploy</description>
+        <projectUrl>https://github.com/mziyabo/codedeploy-globaltool</projectUrl>
+        <license>Apache-2.0</license>
         <authors>mziyabo</authors>
+        <owners>mziyabo</owners>
     </metadata>
 </package>
