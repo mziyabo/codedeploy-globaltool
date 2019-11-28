@@ -3,13 +3,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 
-namespace AWS.CodeDeploy.Tool
+namespace AWS.CodeDeploy.GlobalTool
 {
     /// <summary>
     /// 
     /// </summary>
     public class ArchiveUtil
     {
+        
         internal static FileStream CreateZip(string localRevisionPath)
         {
 
@@ -21,7 +22,10 @@ namespace AWS.CodeDeploy.Tool
             
             ZipFile.CreateFromDirectory(localRevisionPath, outputPath);
 
-            return File.Open(outputPath, FileMode.OpenOrCreate);
+            FileStream zipStream = File.Open(outputPath, FileMode.OpenOrCreate);
+            File.Delete(outputPath);
+
+            return zipStream;
         }
     }
 }

@@ -3,7 +3,7 @@
     <metadata>
         <id>Tool.AWS.CodeDeploy</id>
         <version></version>
-        <description>Tool to deploy applications using AWS CodeDeploy</description>
+        <description>AWS CodeDeploy Global Tool</description>
         <projectUrl>https://github.com/mziyabo/codedeploy-globaltool</projectUrl>
         <license>Apache-2.0</license>
         <authors>mziyabo</authors>

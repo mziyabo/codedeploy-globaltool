@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>AWS.CodeDeploy.GlobalTool</RootNamespace>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>codedeploy</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.CodeDeploy" Version="3.3.101.80" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.108.2" />
+    <PackageReference Include="System.CommandLine.Experimental" Version="0.3.0-alpha.19573.2" />
+  </ItemGroup>
+
+</Project>

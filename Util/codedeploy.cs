@@ -1,7 +1,7 @@
-using System;
+using System.Threading.Tasks;
 using Amazon.CodeDeploy;
 using Amazon.CodeDeploy.Model;
-using Amazon.S3.Model;
+using S3Location = Amazon.CodeDeploy.Model.S3Location;
 
 namespace AWS.CodeDeploy.GlobalTool
 {
@@ -13,13 +13,48 @@ namespace AWS.CodeDeploy.GlobalTool
     {
         GetDeploymentResponse GetDeployment(string deploymentId)
         {
-            throw new NotImplementedException();
+            GetDeploymentRequest request = new GetDeploymentRequest()
+            {
+                DeploymentId = deploymentId
+            };
+
+            AmazonCodeDeployClient client = new AmazonCodeDeployClient();
+
+            Task<GetDeploymentResponse> response = client.GetDeploymentAsync(request);
+            Task.WaitAll(new Task[] { response });
+
+            return response.Result;
         }
 
-        internal static CreateDeploymentResponse Deploy(string applicationName, string deploymentGroupName, PutObjectResponse revisionLocation)
+        internal static string Deploy(string applicationName, string deploymentGroupName, string bucket, string key, string eTag)
         {
-            throw new NotImplementedException();
-        }
+            S3Location location = new S3Location()
+            {
+                Bucket = bucket,
+                BundleType = BundleType.Zip,
+                ETag = eTag,
+                Key = key
+            };
 
+            CreateDeploymentRequest request = new CreateDeploymentRequest()
+            {
+                ApplicationName = applicationName,
+                DeploymentGroupName = deploymentGroupName,
+                Revision = new RevisionLocation()
+                {
+                    S3Location = location,
+                    RevisionType = RevisionLocationType.S3
+                },
+
+            };
+
+            AmazonCodeDeployClient client = new AmazonCodeDeployClient();
+
+            Task<CreateDeploymentResponse> response = client.CreateDeploymentAsync(request);
+            Task.WaitAll(new Task[] { response });
+
+            return response.Result.DeploymentId;
+            
+        }
     }
 }

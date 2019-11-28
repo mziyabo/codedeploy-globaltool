@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -7,7 +6,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Util;
 
-namespace AWS.CodeDeploy.Tool
+namespace AWS.CodeDeploy.GlobalTool
 {
     /// <summary>
     /// 
@@ -20,14 +19,9 @@ namespace AWS.CodeDeploy.Tool
         /// <param name="s3Location"></param>
         /// <param name="zipStream"></param>
         /// <returns></returns>
-        public static async Task<string> UploadRevision(string s3Location, FileStream zipStream)
+        public static string UploadRevision(string s3Location, FileStream zipStream)
         {
             Match match = Regex.Match(s3Location, "(s3://)(.*)/([a-zA-Z-.]*)$");
-
-            RegionEndpoint region = null;
-            BucketRegionDetector.BucketRegionCache.TryGetValue("singwm-temp-delete", out region);
-
-            AmazonS3Client client = new AmazonS3Client();
 
             string bucketName = $"{match.Groups[2].Value}";
             string key = match.Groups[3].Value;
@@ -39,6 +33,8 @@ namespace AWS.CodeDeploy.Tool
                 BucketName = bucketName,
                 Key = key
             };
+
+            AmazonS3Client client = new AmazonS3Client();
 
             Task<PutObjectResponse> response = client.PutObjectAsync(request);
             Task.WaitAll(new Task[] { response });
