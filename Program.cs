@@ -1,20 +1,15 @@
 ﻿using System;
-using Amazon.S3.Model;
-using Amazon.CodeDeploy.Model;
 using System.Threading.Tasks;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace AWS.CodeDeploy.Tool
 {
     class Program
     {
-        string localRevisionPath;
-        string s3RevisionLocation;
-        private string applicationName;
-        private string deploymentGroupName;
-
+       
         public static async Task<int> Main(params string[] args)
         {
             RootCommand rootCommand = new RootCommand(description: "Deploy application through AWS CodeDeploy")
@@ -64,18 +59,27 @@ namespace AWS.CodeDeploy.Tool
             rootCommand.Handler =
               CommandHandler.Create<string, string, string, FileInfo>(Deploy);
 
-            return await rootCommand.InvokeAsync(args);
+            // return await rootCommand.InvokeAsync(args);
+            Deploy(args[0],args[1],args[2],null);
+            return 1;
         }
 
-        static void Deploy(string applicationName, string deploymentGroupName, string s3Location, FileInfo localRevisionPath)
+        static async void Deploy(string applicationName, string deploymentGroupName, string s3Location, FileInfo localRevisionPath)
         {
             // TODO: Implement
+            Match match = Regex.Match(s3Location, "(s3://)(.*)/([a-zA-Z-.]*)$");
+            
+            string bucketName = $"{match.Groups[2].Value}";
+            string key = match.Groups[3].Value;
+            
+            var zipfile = ArchiveUtil.CreateZip("./");
+           
+            await S3Util.UploadRevision(s3Location, zipfile);
 
-            //var zipfile = ArchiveUtil.CreateZip(localRevisionPath.FullName);
-            //PutObjectResponse s3Revision = S3Util.UploadRevision(s3Location, zipfile);
             //CreateDeploymentResponse deploymentResponse = CodeDeployUtil.Deploy(applicationName, deploymentGroupName, s3Revision);
-
             // Optional: Redirect to AWS Console/Get Deployment Details
+            
+            Console.WriteLine();
         }
     }
 }
