@@ -3,26 +3,22 @@ using System.Threading.Tasks;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Logging;
 using System.IO;
+using Serilog;
+using System.IO.Compression;
 
 namespace AWS.CodeDeploy.Tool
 {
     class Program
     {
 
-        static ILogger logger;
-
 
         public static async Task<int> Main(params string[] args)
         {
 
-            ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
-           {
-               builder.AddConsole();
-           });
-
-            logger = loggerFactory.CreateLogger<Tool.Program>();
+            Log.Logger = new LoggerConfiguration()
+   .WriteTo.Console()
+   .CreateLogger();
 
             RootCommand rootCommand = new RootCommand(description: "Create AWS CodeDeploy Deployments")
             {
@@ -78,18 +74,21 @@ namespace AWS.CodeDeploy.Tool
 
             rootCommand.AddOption(regionOption);
 
-            rootCommand.Handler = CommandHandler.Create<string, string, string, string, string>(Deploy);
-            return await rootCommand.InvokeAsync(args);
+            // rootCommand.Handler = CommandHandler.Create<string, string, string, string, string>(Deploy);
+            // return await rootCommand.InvokeAsync(args);
+
+            Deploy(args[0], args[1], args[2], "", "");
+            return 1;
         }
 
         static void Deploy(string application, string deploymentGroup, string s3Location, string appPath, string region)
         {
 
-            Match match = Regex.Match(s3Location, "(s3://)(.*)/([a-zA-Z-\\.]*)$");
+            Match match = Regex.Match(s3Location, "(s3://)(.*)/([a-zA-Z-1-9\\.]*)$");
 
             if (!match.Success)
             {
-                logger.LogError($"Invalid S3 Location: {s3Location}. Expected s3://<bucket-name>/<key>");
+                Log.Error("Invalid S3 Location: {0}. Expected s3://<bucket-name>/<key>", s3Location);
                 return;
             }
 
@@ -97,16 +96,25 @@ namespace AWS.CodeDeploy.Tool
             string key = match.Groups[3].Value;
 
             string path = string.IsNullOrEmpty(appPath) ? "./" : appPath;
-            FileStream zipFileStream = ArchiveUtil.CreateZip(path);
+
+            Log.Information("Zipping app-path {0}", path);
+            FileInfo zipFile = ArchiveUtil.CreateZip(path);
+
+            FileStream zipFileStream = zipFile.Open(FileMode.Open);
 
             if (zipFileStream != null)
             {
                 string eTag = S3Util.UploadRevision(s3Location, zipFileStream);
 
+                //string eTag = S3Util.UploadRevision(s3Location, zipFile.FullName);
+
                 if (!string.IsNullOrEmpty(eTag))
                 {
                     string deploymentId = CodeDeployUtil.Deploy(application, deploymentGroup, bucketName, key, eTag.Replace("\"", ""));
-                    logger.LogInformation($"Created Deployment: {deploymentId}");
+
+                    // Cleanup
+                    zipFileStream.Close();
+                    zipFile.Delete();
                 }
             }
 

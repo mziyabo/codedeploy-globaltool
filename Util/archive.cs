@@ -1,8 +1,9 @@
 using System;
 using System.IO;
-using System.IO.Compression;
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.Logging;
+using System.Text;
+using Serilog;
+using System.IO.Compression;
 
 namespace AWS.CodeDeploy.Tool
 {
@@ -11,28 +12,46 @@ namespace AWS.CodeDeploy.Tool
     /// </summary>
     public class ArchiveUtil
     {
-        string path;
 
-        static ILoggerFactory loggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
-        static ILogger logger = loggerFactory.CreateLogger<Tool.S3Util>();
-
-        internal static FileStream CreateZip(string localRevisionPath)
+        internal static FileInfo CreateZip(string localRevisionPath)
         {
-
-            string outputPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+            try
+            {
+                string outputPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
          Environment.GetEnvironmentVariable("temp") :
           "/tmp/";
 
-            outputPath = $"{outputPath}/{Guid.NewGuid()}.zip";
+                outputPath = $"{outputPath}/{Guid.NewGuid()}.zip";
+                outputPath.Replace("\\", "/");
+                localRevisionPath.Replace("\\", "/");
 
-            ZipFile.CreateFromDirectory(localRevisionPath, outputPath);
+                //ZipFile.CreateFromDirectory(localRevisionPath, outputPath);
+                ZipFile.CreateFromDirectory(localRevisionPath, outputPath, CompressionLevel.Fastest, false, new ZipEncoder());
 
-            FileStream zipStream = File.Open(outputPath, FileMode.Open);
-            // zipStream.Close();
-            // File.Delete(outputPath);
+                outputPath = outputPath.Replace("\\", "/");
 
-            return zipStream;
+                return new FileInfo(outputPath);
+            }
+            catch (System.Exception e)
+            {
+                Log.Error($"{e.GetBaseException().GetType().Name}: {e.Message}");
+                return null;
+            }
 
+        }
+
+    }
+
+    internal class ZipEncoder : UTF8Encoding
+    {
+        public ZipEncoder() : base(true)
+        {
+        }
+
+        public override byte[] GetBytes(string s)
+        {
+            s = s.Replace("\\", "/");
+            return base.GetBytes(s);
         }
     }
 }
