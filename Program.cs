@@ -74,11 +74,11 @@ namespace AWS.CodeDeploy.Tool
 
             rootCommand.AddOption(regionOption);
 
-            // rootCommand.Handler = CommandHandler.Create<string, string, string, string, string>(Deploy);
-            // return await rootCommand.InvokeAsync(args);
+            rootCommand.Handler = CommandHandler.Create<string, string, string, string, string>(Deploy);
+            return await rootCommand.InvokeAsync(args);
 
-            Deploy(args[0], args[1], args[2], "", "");
-            return 1;
+            // Deploy(args[0], args[1], args[2], "", "");
+            // return 1;
         }
 
         static void Deploy(string application, string deploymentGroup, string s3Location, string appPath, string region)
