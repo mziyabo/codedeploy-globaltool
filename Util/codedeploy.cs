@@ -3,7 +3,7 @@ using Amazon.CodeDeploy;
 using Amazon.CodeDeploy.Model;
 using S3Location = Amazon.CodeDeploy.Model.S3Location;
 
-namespace AWS.CodeDeploy.GlobalTool
+namespace AWS.CodeDeploy.Tool
 {
 
     /// <summary>

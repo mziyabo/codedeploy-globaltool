@@ -1,19 +1,30 @@
 ﻿using System.Reflection;
-using System;
 using System.Threading.Tasks;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
+using System.IO;
 
-namespace AWS.CodeDeploy.GlobalTool
+namespace AWS.CodeDeploy.Tool
 {
     class Program
     {
 
+        static ILogger logger;
+
+
         public static async Task<int> Main(params string[] args)
         {
-            RootCommand rootCommand = new RootCommand(description: "Create AWS CodeDeploy EC2 deployments")
+
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+           {
+               builder.AddConsole();
+           });
+
+            logger = loggerFactory.CreateLogger<Tool.Program>();
+
+            RootCommand rootCommand = new RootCommand(description: "Create AWS CodeDeploy Deployments")
             {
                 TreatUnmatchedTokensAsErrors = true
             };
@@ -68,19 +79,17 @@ namespace AWS.CodeDeploy.GlobalTool
             rootCommand.AddOption(regionOption);
 
             rootCommand.Handler = CommandHandler.Create<string, string, string, string, string>(Deploy);
-
             return await rootCommand.InvokeAsync(args);
-
         }
 
         static void Deploy(string application, string deploymentGroup, string s3Location, string appPath, string region)
         {
 
-            Match match = Regex.Match(s3Location, "(s3://)(.*)/([a-zA-Z-.]*)$");
+            Match match = Regex.Match(s3Location, "(s3://)(.*)/([a-zA-Z-\\.]*)$");
 
             if (!match.Success)
             {
-                Console.WriteLine($"Invalid S3 Location: {s3Location}");
+                logger.LogError($"Invalid S3 Location: {s3Location}. Expected s3://<bucket-name>/<key>");
                 return;
             }
 
@@ -88,12 +97,19 @@ namespace AWS.CodeDeploy.GlobalTool
             string key = match.Groups[3].Value;
 
             string path = string.IsNullOrEmpty(appPath) ? "./" : appPath;
-            var zipfile = ArchiveUtil.CreateZip(path);
+            FileStream zipFileStream = ArchiveUtil.CreateZip(path);
 
-            string eTag = S3Util.UploadRevision(s3Location, zipfile);
-            string deploymentId = CodeDeployUtil.Deploy(application, deploymentGroup, bucketName, key, eTag.Replace("\"", ""));
+            if (zipFileStream != null)
+            {
+                string eTag = S3Util.UploadRevision(s3Location, zipFileStream);
 
-            Console.WriteLine($"Created Deployment: {deploymentId}");
+                if (!string.IsNullOrEmpty(eTag))
+                {
+                    string deploymentId = CodeDeployUtil.Deploy(application, deploymentGroup, bucketName, key, eTag.Replace("\"", ""));
+                    logger.LogInformation($"Created Deployment: {deploymentId}");
+                }
+            }
+
             // Optional: Redirect to AWS Console/Get Deployment Details
         }
     }
