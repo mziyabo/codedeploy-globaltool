@@ -1,9 +1,9 @@
+using Serilog;
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
-using Serilog;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 
 namespace AWS.CodeDeploy.Tool
 {
@@ -22,13 +22,8 @@ namespace AWS.CodeDeploy.Tool
           "/tmp/";
 
                 outputPath = $"{outputPath}/{Guid.NewGuid()}.zip";
-                outputPath.Replace("\\", "/");
-                localRevisionPath.Replace("\\", "/");
-
-                //ZipFile.CreateFromDirectory(localRevisionPath, outputPath);
-                ZipFile.CreateFromDirectory(localRevisionPath, outputPath, CompressionLevel.Fastest, false, new ZipEncoder());
-
-                outputPath = outputPath.Replace("\\", "/");
+               
+                ZipFile.CreateFromDirectory(localRevisionPath, outputPath);
 
                 return new FileInfo(outputPath);
             }
@@ -37,9 +32,7 @@ namespace AWS.CodeDeploy.Tool
                 Log.Error($"{e.GetBaseException().GetType().Name}: {e.Message}");
                 return null;
             }
-
         }
-
     }
 
     internal class ZipEncoder : UTF8Encoding

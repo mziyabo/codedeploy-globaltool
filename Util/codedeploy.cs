@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Amazon;
 using Amazon.CodeDeploy;
 using Amazon.CodeDeploy.Model;
 using Serilog;
@@ -12,22 +13,32 @@ namespace AWS.CodeDeploy.Tool
     /// </summary>
     public class CodeDeployUtil
     {
-        GetDeploymentResponse GetDeployment(string deploymentId)
+        internal static GetDeploymentResponse GetDeployment(string deploymentId, string region)
         {
-            GetDeploymentRequest request = new GetDeploymentRequest()
+            try
             {
-                DeploymentId = deploymentId
-            };
+                GetDeploymentRequest request = new GetDeploymentRequest()
+                {
+                    DeploymentId = deploymentId
+                };
 
-            AmazonCodeDeployClient client = new AmazonCodeDeployClient();
+                AmazonCodeDeployClient client = string.IsNullOrEmpty(region) ?
+                 new AmazonCodeDeployClient() :
+                 new AmazonCodeDeployClient(RegionEndpoint.GetBySystemName(region));
 
-            Task<GetDeploymentResponse> response = client.GetDeploymentAsync(request);
-            Task.WaitAll(new Task[] { response });
+                Task<GetDeploymentResponse> response = client.GetDeploymentAsync(request);
+                Task.WaitAll(new Task[] { response });
 
-            return response.Result;
+                return response.Result;
+            }
+            catch (System.Exception e)
+            {
+                Log.Error($"{e.GetBaseException().GetType().Name}: {e.Message}");
+                return null;
+            }
         }
 
-        internal static string Deploy(string applicationName, string deploymentGroupName, string bucket, string key, string eTag)
+        internal static string Deploy(string applicationName, string deploymentGroupName, string bucket, string key, string eTag, string version, string region = "")
         {
             try
             {
@@ -36,7 +47,8 @@ namespace AWS.CodeDeploy.Tool
                     Bucket = bucket,
                     BundleType = BundleType.Zip,
                     ETag = eTag,
-                    Key = key
+                    Key = key,
+                    Version = version
                 };
 
                 CreateDeploymentRequest request = new CreateDeploymentRequest()
@@ -51,12 +63,21 @@ namespace AWS.CodeDeploy.Tool
 
                 };
 
-                AmazonCodeDeployClient client = new AmazonCodeDeployClient();
+                AmazonCodeDeployClient client = string.IsNullOrEmpty(region) ?
+                 new AmazonCodeDeployClient() :
+                 new AmazonCodeDeployClient(RegionEndpoint.GetBySystemName(region));
 
                 Task<CreateDeploymentResponse> response = client.CreateDeploymentAsync(request);
                 Task.WaitAll(new Task[] { response });
 
-                Log.Information("Deployment Created: {0}", response.Result.DeploymentId);
+
+                string message = "Deployment Created: {0} \ndotnet codedeploy status --deployment-id {0}";
+                if (!string.IsNullOrEmpty(region))
+                {
+                    message += " --region {1}";
+                }
+
+                Log.Information(message, response.Result.DeploymentId, region);
                 return response.Result.DeploymentId;
 
             }

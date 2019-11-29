@@ -5,7 +5,10 @@ using System.CommandLine.Invocation;
 using System.Text.RegularExpressions;
 using System.IO;
 using Serilog;
-using System.IO.Compression;
+using Amazon.S3.Model;
+using Amazon.CodeDeploy.Model;
+using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace AWS.CodeDeploy.Tool
 {
@@ -20,9 +23,9 @@ namespace AWS.CodeDeploy.Tool
    .WriteTo.Console()
    .CreateLogger();
 
-            RootCommand rootCommand = new RootCommand(description: "Create AWS CodeDeploy Deployments")
+            RootCommand rootCommand = new RootCommand(description: "Create AWS CodeDeploy deployments")
             {
-                TreatUnmatchedTokensAsErrors = true
+                TreatUnmatchedTokensAsErrors = false
             };
 
             Option appOption = new Option(
@@ -68,57 +71,99 @@ namespace AWS.CodeDeploy.Tool
             aliases: new string[] { "--region" }
             , description: "AWS Region e.g. us-east-1")
             {
-                Name = "app-path",
                 Argument = new Argument<string>()
             };
 
             rootCommand.AddOption(regionOption);
 
+            Command statusCommand = new Command("status", description: "Get Deployment Status")
+            {
+                TreatUnmatchedTokensAsErrors = true
+            };
+
+            Option deploymentOption = new Option(
+            aliases: new string[] { "--deployment-id" }
+            , description: "Deployment Id")
+            {
+                Argument = new Argument<string>(),
+                Required = true
+            };
+
+            statusCommand.AddOption(deploymentOption);
+            statusCommand.AddOption(regionOption);
+            statusCommand.Handler = CommandHandler.Create<string, string>(GetDeploymentStatus);
+
+            rootCommand.AddCommand(statusCommand);
+
             rootCommand.Handler = CommandHandler.Create<string, string, string, string, string>(Deploy);
             return await rootCommand.InvokeAsync(args);
 
-            // Deploy(args[0], args[1], args[2], "", "");
-            // return 1;
         }
 
         static void Deploy(string application, string deploymentGroup, string s3Location, string appPath, string region)
         {
-
-            Match match = Regex.Match(s3Location, "(s3://)(.*)/([a-zA-Z-1-9\\.]*)$");
-
-            if (!match.Success)
+            try
             {
-                Log.Error("Invalid S3 Location: {0}. Expected s3://<bucket-name>/<key>", s3Location);
-                return;
-            }
-
-            string bucketName = $"{match.Groups[2].Value}";
-            string key = match.Groups[3].Value;
-
-            string path = string.IsNullOrEmpty(appPath) ? "./" : appPath;
-
-            Log.Information("Zipping app-path {0}", path);
-            FileInfo zipFile = ArchiveUtil.CreateZip(path);
-
-            FileStream zipFileStream = zipFile.Open(FileMode.Open);
-
-            if (zipFileStream != null)
-            {
-                string eTag = S3Util.UploadRevision(s3Location, zipFileStream);
-
-                //string eTag = S3Util.UploadRevision(s3Location, zipFile.FullName);
-
-                if (!string.IsNullOrEmpty(eTag))
+                if (!IsDotnetDirectory())
                 {
-                    string deploymentId = CodeDeployUtil.Deploy(application, deploymentGroup, bucketName, key, eTag.Replace("\"", ""));
+                    Log.Warning("No .NET project found in directory {0}", Directory.GetCurrentDirectory());
+                    return;
+                }
 
-                    // Cleanup
-                    zipFileStream.Close();
-                    zipFile.Delete();
+                Match match = Regex.Match(s3Location, "(s3://)(.*)/([a-zA-Z-1-9\\.]*)$");
+
+                if (!match.Success)
+                {
+                    Log.Error("Invalid S3 Location: {0}. Expected s3://<bucket-name>/<key>", s3Location);
+                    return;
+                }
+
+                string bucketName = $"{match.Groups[2].Value}";
+                string key = match.Groups[3].Value;
+
+                string path = string.IsNullOrEmpty(appPath) ? "./" : appPath;
+
+                Log.Information("Zipping app-path {0}", path);
+                FileInfo zipFile = ArchiveUtil.CreateZip(path);
+
+                FileStream zipFileStream = zipFile.Open(FileMode.Open);
+
+                if (zipFileStream != null)
+                {
+                    PutObjectResponse response = S3Util.UploadRevision(bucketName, key, zipFileStream);
+
+                    if (response != null)
+                    {
+                        string deploymentId = CodeDeployUtil.Deploy(application, deploymentGroup, bucketName, key, response.ETag.Replace("\"", ""), response.VersionId, region);
+
+                        zipFileStream.Close();
+                        zipFile.Delete();
+                    }
                 }
             }
-
+            catch (System.Exception e)
+            {
+                Log.Error($"{e.GetBaseException().GetType().Name}: {e.Message}");
+            }
             // Optional: Redirect to AWS Console/Get Deployment Details
+        }
+
+        static void GetDeploymentStatus(string deploymentId, string region = "")
+        {
+            GetDeploymentResponse response = CodeDeployUtil.GetDeployment(deploymentId, region);
+            if (response != null)
+            {
+                Log.Information("{0} {1} - CompleteTime: {2}", deploymentId, response.DeploymentInfo.Status, response.DeploymentInfo.CompleteTime);
+            }
+        }
+
+
+        static bool IsDotnetDirectory()
+        {
+            string directory = Directory.GetCurrentDirectory();
+            string[] files = Directory.GetFiles(directory);
+
+            return files.Any(file => Regex.Match(file, ".*.(cs|vb)proj").Success);
         }
     }
 }
