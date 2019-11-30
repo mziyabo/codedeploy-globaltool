@@ -1,5 +1,5 @@
 
-# AWS CodeDeploy .NET Core Global Tool
+# AWS CodeDeploy Global Tool
 
 ![Build Status](https://travis-ci.org/mziyabo/codedeploy-globaltool.svg?branch=master)
 
