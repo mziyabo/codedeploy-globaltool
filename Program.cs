@@ -7,7 +7,6 @@ using System.IO;
 using Serilog;
 using Amazon.S3.Model;
 using Amazon.CodeDeploy.Model;
-using System.Runtime.InteropServices;
 using System.Linq;
 
 namespace AWS.CodeDeploy.Tool

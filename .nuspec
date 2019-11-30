@@ -2,8 +2,8 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Tool.AWS.CodeDeploy</id>
-        <version></version>
-        <description>AWS CodeDeploy Global Tool</description>
+        <version>1.0.0</version>
+        <description>AWS CodeDeploy .NET Global Tool</description>
         <projectUrl>https://github.com/mziyabo/codedeploy-globaltool</projectUrl>
         <license>Apache-2.0</license>
         <authors>mziyabo</authors>

@@ -1,5 +1,6 @@
 
 # AWS CodeDeploy .NET Core Global Tool
+![Build Status](https://travis-ci.org/mziyabo/codedeploy-globaltool.svg?branch=master)
 
 Deploy .NET Core applications using CodeDeploy and S3 Revision Locations
 
@@ -10,10 +11,21 @@ Deploy .NET Core applications using CodeDeploy and S3 Revision Locations
 dotnet tool install -g Tool.AWS.CodeDeploy
 ```
 
-## Features
-Create CodeDeploy Deployments:
+## Available Commands
+
+### Create Deployment
 ```
-dotnet codedeploy --application <value> --deploymentGroup -- <value> --s3RevisionLocation s3://<bucket>/<key>
+dotnet codedeploy --application <value> --deploymentGroup -- <value> --s3-location s3://<bucket>/<key>
+```
+
+### Get Deployment Status
+```
+dotnet codedeploy status --deployment-id <value>
+```
+
+### Help
+```
+dotnet codedeploy -h
 ```
 
 ## Licence

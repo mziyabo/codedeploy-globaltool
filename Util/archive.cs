@@ -22,7 +22,7 @@ namespace AWS.CodeDeploy.Tool
           "/tmp/";
 
                 outputPath = $"{outputPath}/{Guid.NewGuid()}.zip";
-               
+
                 ZipFile.CreateFromDirectory(localRevisionPath, outputPath);
 
                 return new FileInfo(outputPath);
@@ -32,19 +32,6 @@ namespace AWS.CodeDeploy.Tool
                 Log.Error($"{e.GetBaseException().GetType().Name}: {e.Message}");
                 return null;
             }
-        }
-    }
-
-    internal class ZipEncoder : UTF8Encoding
-    {
-        public ZipEncoder() : base(true)
-        {
-        }
-
-        public override byte[] GetBytes(string s)
-        {
-            s = s.Replace("\\", "/");
-            return base.GetBytes(s);
         }
     }
 }
