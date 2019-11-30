@@ -18,7 +18,7 @@ dotnet tool install -g Tool.AWS.CodeDeploy
 
 Zips an application path (Default './') and creates S3 revision and then creates and CodeDeploy deployment:
 ```
-dotnet codedeploy --application <value> --deploymentGroup -- <value> --s3-location s3://<bucket>/<key>
+dotnet codedeploy --application <value> --deploymentGroup <value> --s3-location s3://<bucket>/<key>
 ```
 
 **Get Deployment Status**
