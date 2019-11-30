@@ -1,9 +1,9 @@
 
 # AWS CodeDeploy .NET Core Global Tool
 
-Deploy .NET Core applications using CodeDeploy
-
 ![Build Status](https://travis-ci.org/mziyabo/codedeploy-globaltool.svg?branch=master)
+
+Deploy .NET Core applications using CodeDeploy
 
 # Installation
 1. Install aws-cli and [configure credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html). Alternatively setup AWS Credentials from [Environment Variables](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-environment.html)
