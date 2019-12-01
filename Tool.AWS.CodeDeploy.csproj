@@ -12,17 +12,19 @@
 
   <PropertyGroup>
     <id>Tool.AWS.CodeDeploy</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>AWS CodeDeploy .NET Global Tool</title>
     <authors>mziyabo</authors>
-    <owners>mziyabo</owners>
     <projectUrl>https://github.com/mziyabo/codedeploy-globaltool.git</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>AWS CodeDeploy .NET Global Tool</description>
+    <description>Deploy .NET Core applications using CodeDeploy</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2019</copyright>
-    <tags>AWS CodeDeploy</tags>
-    <licenseUrl>https://github.com/mziyabo/codedeploy-globaltool/blob/master/LICENSE</licenseUrl>
+    <PackageTags>AWS;CodeDeploy;Tool</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/mziyabo/codedeploy-globaltool.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryBranch>master</RepositoryBranch>
   </PropertyGroup>
 
   <ItemGroup>
