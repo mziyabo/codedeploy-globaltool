@@ -3,10 +3,19 @@
     <metadata>
         <id>Tool.AWS.CodeDeploy</id>
         <version>1.0.0</version>
-        <description>AWS CodeDeploy .NET Global Tool</description>
-        <projectUrl>https://github.com/mziyabo/codedeploy-globaltool</projectUrl>
-        <license>Apache-2.0</license>
+        <title>AWS CodeDeploy .NET Global Tool</title>
         <authors>mziyabo</authors>
         <owners>mziyabo</owners>
+        <license type="expression">Apache-2.0</license>
+        <projectUrl>https://github.com/mziyabo/codedeploy-globaltool.git</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>AWS CodeDeploy .NET Global Tool</description>
+        <releaseNotes></releaseNotes>
+        <copyright>Copyright 2019</copyright>
+        <tags>AWS CodeDeploy</tags>
+        <dependencies>
+            <group targetFramework=".NETCoreApp3.0">
+            </group>
+        </dependencies>
     </metadata>
 </package>

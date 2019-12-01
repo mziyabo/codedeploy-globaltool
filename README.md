@@ -1,7 +1,7 @@
 
 # AWS CodeDeploy Global Tool
 
-![Build Status](https://travis-ci.org/mziyabo/codedeploy-globaltool.svg?branch=master)
+![Build Status](https://travis-ci.org/mziyabo/codedeploy-globaltool.svg?branch=master) ![NuGet](https://img.shields.io/nuget/v/Tool.AWS.CodeDeploy.svg)
 
 Deploy .NET Core applications using CodeDeploy
 

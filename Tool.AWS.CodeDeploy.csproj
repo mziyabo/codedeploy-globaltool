@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>AWS.CodeDeploy.Tool</RootNamespace>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dotnet-codedeploy</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <id>Tool.AWS.CodeDeploy</id>
+    <version>1.0.1</version>
+    <title>AWS CodeDeploy .NET Global Tool</title>
+    <authors>mziyabo</authors>
+    <owners>mziyabo</owners>
+    <projectUrl>https://github.com/mziyabo/codedeploy-globaltool.git</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>AWS CodeDeploy .NET Global Tool</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2019</copyright>
+    <tags>AWS CodeDeploy</tags>
+    <licenseUrl>https://github.com/mziyabo/codedeploy-globaltool/blob/master/LICENSE</licenseUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.CodeDeploy" Version="3.3.101.80" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.108.2" />
+    <PackageReference Include="serilog" Version="2.9.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="SharpZipLib" Version="1.2.0" />
+    <PackageReference Include="System.CommandLine.Experimental" Version="0.3.0-alpha.19573.2" />
+  </ItemGroup>
+
+</Project>
